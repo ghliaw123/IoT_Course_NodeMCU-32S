@@ -1,7 +1,7 @@
 // Pin Assignment
-#define PIN_RED     3
-#define PIN_YELLOW  7
-#define PIN_GREEN   11
+#define PIN_RED     25
+#define PIN_YELLOW  26
+#define PIN_GREEN   27
 
 // System State
 #define STATE_RED           1

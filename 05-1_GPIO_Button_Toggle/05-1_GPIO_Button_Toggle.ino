@@ -1,8 +1,8 @@
 // Pin Assignment
-#define PIN_RED     3
-#define PIN_YELLOW  7
-#define PIN_GREEN   11
-#define PIN_BUTTON  2
+#define PIN_RED     25
+#define PIN_YELLOW  26
+#define PIN_GREEN   27
+#define PIN_BUTTON  17
 
 // System Mode
 #define MODE_NORMAL       1
@@ -32,7 +32,11 @@
 int led_state, mode;
 unsigned long start_time, current_time, flash_start_time, last_time_button;
 int toggle;
-bool allow_read_button = true;
+// Copied from Debounce example
+int buttonState;            // the current reading from the input pin
+int lastButtonState = LOW;  // the previous reading from the input pin
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 
 void setup() {
   Serial.begin(9600);
@@ -120,11 +124,18 @@ void loop() {
       break;
   }
 
-  // Read push button
-  if(allow_read_button) {
-    val = digitalRead(PIN_BUTTON);
-    if (val==HIGH) {  // button is pressed, change mode        
-      switch (mode) {
+  // Read push button with debounce
+  int reading = digitalRead(PIN_BUTTON);
+  if (reading != lastButtonState) {
+    // reset the debouncing timer
+    lastDebounceTime = millis();
+  }
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+
+      if (buttonState==HIGH) {  // button is pressed, change mode        
+        switch (mode) {
           case MODE_NORMAL:
             Serial.println("Mode change: NORMAL --> FLASH_YELLOW");
             mode = MODE_FLASH_YELLOW;
@@ -134,7 +145,7 @@ void loop() {
             digitalWrite(PIN_RED, LOW);
             digitalWrite(PIN_GREEN, LOW);
             break;
-            
+                  
           case MODE_FLASH_YELLOW:
             Serial.println("Mode change: YELLOW_FLASH --> NORMAL");
             mode = MODE_NORMAL;
@@ -145,17 +156,12 @@ void loop() {
             start_time = millis();
             led_state = STATE_RED;
             break;
-            
-          default:
-            break;
+                  
+            default:
+              break;
         }
+      }  
     }
-    allow_read_button = false;
-    last_time_button = millis();
   }
-  else {
-    if(millis()-last_time_button >= BUTTON_READ_INTERVAL)
-      allow_read_button = true;
-  }
-  
+  lastButtonState = reading;
 }

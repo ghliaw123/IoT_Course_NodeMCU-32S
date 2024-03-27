@@ -1,11 +1,19 @@
 #include <string.h>
 
-const int ledPin = 9;
+#define LED_PIN       25    // GPIO pin of LED
+#define PWM_CHANNEL   0     // PWM channel (0~15)
+#define PWM_FREQ      5000  // PWM frequency
+#define PWM_BITS      12    // PWM resolution bits of duty
+#define PWM_MAX_DUTY  4095  // The maximum value of duty
 
 void setup() {
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(ledPin, OUTPUT);
-  // opens serial port, set data rate to 9600 bps
+  // Initialize LED pin as output
+  pinMode(LED_PIN, OUTPUT);
+  // PWM channel setup
+  ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_BITS);
+  // Attach LED pin to PWM channel
+  ledcAttachPin(LED_PIN, PWM_CHANNEL);
+  // Open serial port, set data rate to 115200 bps
   Serial.begin(115200);
   while(!Serial); // wait until serial port is ready
   Serial.println("Program Start!!");      
@@ -28,7 +36,7 @@ void loop() {
       value = atoi(buf);
       Serial.print("I got: ");
       Serial.println(value);
-      if(value >= 0 && value <=255) analogWrite(ledPin, value);
+      if(value >= 0 && value <=PWM_MAX_DUTY) ledcWrite(PWM_CHANNEL, value);
       length = 0; // reset the length for receiving next string
     }
   }

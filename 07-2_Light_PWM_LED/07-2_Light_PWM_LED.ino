@@ -1,7 +1,7 @@
-#define BRIGHT_MAX  630
+#define BRIGHT_MAX  1000
 
-const int ledPin = 9;
-const int lightPin = A0; 
+const int ledPin = 25;
+const int lightPin = 36; 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
@@ -13,5 +13,5 @@ void loop() {
 
   value = analogRead(lightPin);
   Serial.println(value);
-  analogWrite(ledPin, map(value, 0, BRIGHT_MAX, 255, 0));
+  analogWrite(ledPin, map(value, 4095, BRIGHT_MAX, 255, 0));
 }
